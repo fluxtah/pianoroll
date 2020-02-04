@@ -9,9 +9,8 @@ import androidx.ui.layout.LayoutHeight
 import androidx.ui.layout.Spacer
 import androidx.ui.material.MaterialTheme
 import androidx.ui.unit.dp
-import com.citizenwarwick.pianoroll.Note
 import com.citizenwarwick.pianoroll.PianoChord
-import com.citizenwarwick.pianoroll.PianoKey
+import com.citizenwarwick.pianoroll.toChord
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,29 +19,11 @@ class MainActivity : AppCompatActivity() {
             MaterialTheme {
                 Container {
                     Column {
-                        PianoChord(
-                            chord = listOf(
-                                PianoKey(Note.C, 0),
-                                PianoKey(Note.E, 0),
-                                PianoKey(Note.G, 0)
-                            )
-                        )
+                        PianoChord("C0 E0 G0".toChord())
                         Spacer(modifier = LayoutHeight(16.dp))
-                        PianoChord(
-                            chord = listOf(
-                                PianoKey(Note.D, 0),
-                                PianoKey(Note.F, 0),
-                                PianoKey(Note.A, 0)
-                            )
-                        )
+                        PianoChord("D0 F0 A0".toChord())
                         Spacer(modifier = LayoutHeight(16.dp))
-                        PianoChord(
-                            chord = listOf(
-                                PianoKey(Note.E, 0),
-                                PianoKey(Note.Gs, 0),
-                                PianoKey(Note.B, 0)
-                            )
-                        )
+                        PianoChord("E0 G#0 B0".toChord())
                     }
                 }
             }

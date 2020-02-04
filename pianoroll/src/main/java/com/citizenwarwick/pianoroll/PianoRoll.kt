@@ -236,7 +236,27 @@ enum class Note(val index: Int) {
     Gs(8),
     A(9),
     As(10),
-    B(11),
+    B(11)
+}
+
+fun String.toChord(): List<PianoKey> {
+    return split(" ").map {
+        when (it.length) {
+            3 -> {
+                val sharpFlat = it.substring(1, 2)
+                val note = it.substring(0, 1)
+                val octave = it.substring(2, 3).toInt()
+                val noteSum = Note.values()[Note.valueOf(note).ordinal + (if (sharpFlat == "#") 1 else -1)]
+                PianoKey(noteSum, octave)
+            }
+            2 -> {
+                val note = it.substring(0, 1)
+                val octave = it.substring(1, 2).toInt()
+                PianoKey(Note.valueOf(note), octave)
+            }
+            else -> throw RuntimeException("Invalid format")
+        }
+    }
 }
 
 private const val DEFAULT_SCALE = 1.5f

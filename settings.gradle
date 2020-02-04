@@ -1,0 +1,3 @@
+include ':pianoroll'
+include ':pianoroll-sample'
+rootProject.name = "PIano Roll"

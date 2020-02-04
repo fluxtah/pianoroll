@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'com.github.dcendents.android-maven'
 
 group = 'com.citizenwarwick.pianoroll'
-version = "0.1.0-dev04"
+version = "0.1.4"
 
 android {
     compileSdkVersion 29

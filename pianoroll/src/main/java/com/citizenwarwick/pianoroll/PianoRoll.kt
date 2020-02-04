@@ -90,7 +90,7 @@ private fun WhiteNoteLabels(startFromF: Boolean, octave: Int?) {
                 val noteName = formatNoteName(startFromF, noteIndex, octave)
                 androidx.ui.core.Text(
                     text = noteName,
-                    style = TextStyle(fontSize = 8.sp)
+                    style = TextStyle(fontSize = (8 * DEFAULT_SCALE).sp)
                 )
             }
         }
@@ -239,7 +239,7 @@ enum class Note(val index: Int) {
     B(11),
 }
 
-private const val DEFAULT_SCALE = 1f
+private const val DEFAULT_SCALE = 1.5f
 private const val KEY_WIDTH = 32 * DEFAULT_SCALE
 private const val KEY_AND_BORDER_WIDTH = KEY_WIDTH + 1
 private const val KEY_HEIGHT = 128 * DEFAULT_SCALE

@@ -10,11 +10,11 @@ class MainActivity : AppCompatActivity() {
             MaterialTheme {
                 Container {
                     Column {
-                        PianoChord("C0 E0 G0".toChord())
+                        PianoChord("C0 E0 G0".chord)
                         Spacer(modifier = LayoutHeight(16.dp))
-                        PianoChord("D0 F0 A0".toChord())
+                        PianoChord("D0 F0 A0".chord)
                         Spacer(modifier = LayoutHeight(16.dp))
-                        PianoChord("E0 G#0 B0".toChord())
+                        PianoChord("E0 G#0 B0".chord)
                     }
                 }
             }

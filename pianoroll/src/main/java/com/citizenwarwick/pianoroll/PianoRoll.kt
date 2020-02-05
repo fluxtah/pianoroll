@@ -239,8 +239,8 @@ enum class Note(val index: Int) {
     B(11)
 }
 
-fun String.toChord(): List<PianoKey> {
-    return split(" ").map {
+inline val String.chord: List<PianoKey>
+    get() = split(" ").map {
         when (it.length) {
             3 -> {
                 val sharpFlat = it.substring(1, 2)
@@ -257,7 +257,6 @@ fun String.toChord(): List<PianoKey> {
             else -> throw RuntimeException("Invalid format")
         }
     }
-}
 
 private const val DEFAULT_SCALE = 1.5f
 private const val KEY_WIDTH = 32 * DEFAULT_SCALE

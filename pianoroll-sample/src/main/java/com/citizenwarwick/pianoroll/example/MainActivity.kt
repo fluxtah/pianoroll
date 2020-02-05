@@ -10,7 +10,7 @@ import androidx.ui.layout.Spacer
 import androidx.ui.material.MaterialTheme
 import androidx.ui.unit.dp
 import com.citizenwarwick.pianoroll.PianoChord
-import com.citizenwarwick.pianoroll.toChord
+import com.citizenwarwick.pianoroll.chord
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,11 +19,11 @@ class MainActivity : AppCompatActivity() {
             MaterialTheme {
                 Container {
                     Column {
-                        PianoChord("C0 E0 G0".toChord())
+                        PianoChord("C0 E0 G0".chord)
                         Spacer(modifier = LayoutHeight(16.dp))
-                        PianoChord("D0 F0 A0".toChord())
+                        PianoChord("D0 F0 A0".chord)
                         Spacer(modifier = LayoutHeight(16.dp))
-                        PianoChord("E0 G#0 B0".toChord())
+                        PianoChord("E0 G#0 B0".chord)
                     }
                 }
             }

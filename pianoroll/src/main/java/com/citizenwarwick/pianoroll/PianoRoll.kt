@@ -29,28 +29,30 @@ import com.citizenwarwick.pianoroll.Note.F
 import com.citizenwarwick.pianoroll.Note.Fs
 import com.citizenwarwick.pianoroll.Note.G
 import com.citizenwarwick.pianoroll.Note.Gs
+import kotlin.math.max
 
 @Composable
 @Preview
 fun PianoRollPreview() {
     val chord = listOf(
-        PianoKey(C, 0),
-        PianoKey(Ds, 0),
-        PianoKey(G, 0)
+        PianoKey(F, 0),
+        PianoKey(A, 0),
+        PianoKey(B, 0)
     )
 
-    PianoChord(chord)
+    PianoChord(chord = chord)
 }
 
 @Composable
 fun PianoChord(
     chord: List<PianoKey>,
     showNoteNames: Boolean = true,
+    sizeScale: Float = 1.5f,
     onKeyPressed: (PianoKey) -> Unit = {}
 ) {
     val lower = chord.lowerKey()
     val upper = chord.upperKey()
-    PianoRoll(lower, upper, showNoteNames, chord, onKeyPressed)
+    PianoRoll(lower, upper, showNoteNames, chord, sizeScale, onKeyPressed)
 }
 
 @Composable
@@ -59,17 +61,19 @@ fun PianoRoll(
     to: PianoKey,
     showNoteNames: Boolean = false,
     highlightedKeys: List<PianoKey>? = null,
+    sizeScale: Float = 1.5f,
     onKeyPressed: (PianoKey) -> Unit = {}
 ) {
     val startsAtF = from.note >= F
     Row {
-        KeyDivider()
+        KeyDivider((BASE_KEY_HEIGHT * sizeScale).dp)
         for (octave in from.octave..to.octave) {
             PianoRollOctave(
                 startFromF = startsAtF,
                 showNoteNames = showNoteNames,
                 octave = octave,
                 highlightedKeys = highlightedKeys,
+                sizeScale = sizeScale,
                 onKeyPressed = onKeyPressed
             )
         }
@@ -82,13 +86,14 @@ fun PianoRollOctave(
     showNoteNames: Boolean = false,
     octave: Int = 0,
     highlightedKeys: List<PianoKey>? = null,
+    sizeScale: Float = 1.5f,
     onKeyPressed: (PianoKey) -> Unit = {}
 ) {
     Stack {
-        WhiteNotes(startFromF, octave, highlightedKeys, onKeyPressed)
-        BlackNotes(startFromF, octave, highlightedKeys, onKeyPressed)
+        WhiteNotes(startFromF, octave, highlightedKeys, sizeScale, onKeyPressed)
+        BlackNotes(startFromF, octave, highlightedKeys, sizeScale, onKeyPressed)
         if (showNoteNames) {
-            WhiteNoteLabels(startFromF, octave)
+            WhiteNoteLabels(startFromF, octave, sizeScale)
         }
     }
 }
@@ -96,18 +101,21 @@ fun PianoRollOctave(
 @Composable
 private fun WhiteNoteLabels(
     startFromF: Boolean = false,
-    octave: Int? = null
+    octave: Int = 0,
+    sizeScale: Float = 1.5f
 ) {
     Row {
         repeat(7) { noteIndex ->
             Container(
-                LayoutPadding(right = 1.dp) + LayoutSize(KEY_WIDTH.dp, KEY_HEIGHT.minus(4).dp),
+                LayoutPadding(right = 1.dp) + LayoutSize(
+                    (BASE_KEY_WIDTH * sizeScale).dp, (BASE_KEY_HEIGHT * sizeScale).minus(4).dp
+                ),
                 alignment = Alignment.BottomCenter
             ) {
                 val noteName = formatNoteName(startFromF, noteIndex, octave)
                 androidx.ui.core.Text(
                     text = noteName,
-                    style = TextStyle(fontSize = (8 * DEFAULT_SCALE).sp)
+                    style = TextStyle(fontSize = (8 * sizeScale).sp)
                 )
             }
         }
@@ -119,28 +127,50 @@ private fun BlackNotes(
     startFromF: Boolean = false,
     octave: Int = 0,
     highlightedKeys: List<PianoKey>? = null,
+    sizeScale: Float = 1.5f,
     onKeyPressed: (PianoKey) -> Unit = {}
 ) {
+    val accKeyWidth = BASE_ACC_KEY_WIDTH * sizeScale
+    val accKeyHeight = BASE_ACC_KEY_HEIGHT * sizeScale
+    val keyWidthWithBorder = (BASE_KEY_WIDTH * sizeScale) + 1
+    val halfKeyWidth = accKeyWidth / 2
+    val keyAlignment = accKeyWidth / 6
+
     if (startFromF) {
-        ACC_NOTE_SPACING_FROM_F.forEachIndexed { index, space ->
+        val keySpacing: List<Float> = listOf(
+            (keyWidthWithBorder + 1) - halfKeyWidth - keyAlignment,
+            (keyWidthWithBorder * 2) - halfKeyWidth,
+            (keyWidthWithBorder * 3) - halfKeyWidth + keyAlignment,
+            (keyWidthWithBorder * 5) - halfKeyWidth - keyAlignment,
+            (keyWidthWithBorder * 6) - halfKeyWidth + keyAlignment
+        )
+        keySpacing.forEachIndexed { index, space ->
             val actualOctave = if (index > 3) octave.plus(1) else octave
             val highlighted =
                 highlightedKeys?.any { it.note == ACC_NOTES_FROM_F[index] && it.octave == actualOctave }
                     ?: false
             Ripple(bounded = true, color = Color.White) {
                 Clickable(onClick = { onKeyPressed(PianoKey(ACC_NOTES_FROM_F[index], actualOctave)) }) {
-                    AccidentalPianoKey(space.dp, highlighted)
+                    AccidentalPianoKey(space.dp, highlighted, accKeyWidth.dp, accKeyHeight.dp)
                 }
             }
         }
     } else {
-        ACC_NOTE_SPACING.forEachIndexed { index, space ->
+        val keySpacing: List<Float> = listOf(
+            (keyWidthWithBorder * 1) - halfKeyWidth - keyAlignment,
+            (keyWidthWithBorder * 2) - halfKeyWidth + keyAlignment,
+            (keyWidthWithBorder * 4) - halfKeyWidth - keyAlignment,
+            (keyWidthWithBorder * 5) - halfKeyWidth,
+            (keyWidthWithBorder * 6) - halfKeyWidth + keyAlignment
+        )
+
+        keySpacing.forEachIndexed { index, space ->
             val highlighted =
                 highlightedKeys?.any { it.note == ACC_NOTES[index] && it.octave == octave }
                     ?: false
             Ripple(bounded = true, color = Color.White) {
                 Clickable(onClick = { onKeyPressed(PianoKey(ACC_NOTES[index], octave)) }) {
-                    AccidentalPianoKey(space.dp, highlighted)
+                    AccidentalPianoKey(space.dp, highlighted, accKeyWidth.dp, accKeyHeight.dp)
                 }
             }
         }
@@ -152,8 +182,12 @@ private fun WhiteNotes(
     startFromF: Boolean = false,
     octave: Int = 0,
     highlightedKeys: List<PianoKey>? = null,
+    sizeScale: Float = 1.5f,
     onKeyPressed: (PianoKey) -> Unit = {}
 ) {
+    val width = (BASE_KEY_WIDTH * sizeScale).dp
+    val height = (BASE_KEY_HEIGHT * sizeScale).dp
+
     Row {
         if (startFromF) {
             // We hit somewhere between 1 and 2 octaves here so we need
@@ -163,74 +197,74 @@ private fun WhiteNotes(
                 val highlighted = highlightedKeys?.any { it.note == note && it.octave == actualOctave } ?: false
                 Ripple(bounded = true) {
                     Clickable(onClick = { onKeyPressed(PianoKey(note, actualOctave)) }) {
-                        PianoKey(highlighted = highlighted)
+                        PianoKey(highlighted = highlighted, width = width, height = height)
                     }
                 }
-                KeyDivider()
+                KeyDivider(height)
             }
         } else {
             NATURAL_NOTES.forEach { note ->
                 val highlighted = highlightedKeys?.any { it.note == note && it.octave == octave } ?: false
                 Ripple(bounded = true) {
                     Clickable(onClick = { onKeyPressed(PianoKey(note, octave)) }) {
-                        PianoKey(highlighted = highlighted)
+                        PianoKey(highlighted = highlighted, width = width, height = height)
                     }
                 }
-                KeyDivider()
+                KeyDivider(height)
             }
         }
     }
 }
 
 @Composable
-private fun PianoKey(highlighted: Boolean = false) {
+private fun PianoKey(highlighted: Boolean = false, width: Dp, height: Dp) {
     Column {
         ColoredRect(
             color = Color.Black,
             height = 1.dp,
-            width = KEY_WIDTH.dp
+            width = width
         )
         ColoredRect(
             color = if (highlighted) Color.Yellow else Color.White,
-            height = KEY_HEIGHT.minus(2).dp, // 2 less for border top and bottom
-            width = KEY_WIDTH.dp
+            height = height.minus(2.dp), // 2 less for border top and bottom
+            width = width
         )
         ColoredRect(
             color = Color.Black,
             height = 1.dp,
-            width = KEY_WIDTH.dp
+            width = width
         )
     }
 }
 
 @Composable
-private fun KeyDivider() {
+private fun KeyDivider(height: Dp) {
     ColoredRect(
         color = Color.Black,
-        height = KEY_HEIGHT.dp,
+        height = height,
         width = 1.dp
     )
 }
 
 @Composable
-private fun AccidentalPianoKey(leftSpacing: Dp, highlighted: Boolean = false) {
+private fun AccidentalPianoKey(leftSpacing: Dp, highlighted: Boolean = false, keyWidth: Dp, keyHeight: Dp) {
     Column(modifier = LayoutPadding(left = leftSpacing)) {
         ColoredRect(
             color = Color.Black,
             height = 1.dp,
-            width = ACC_KEY_WIDTH.dp
+            width = keyWidth
         )
         Stack {
             ColoredRect(
                 color = Color.Black,
-                height = ACC_KEY_HEIGHT.minus(1).dp, // minus one for top border
-                width = ACC_KEY_WIDTH.dp
+                height = keyHeight.minus(1.dp), // minus one for top border
+                width = keyWidth
             )
             if (highlighted) {
                 ColoredRect(
                     color = Color.Yellow.copy(alpha = 0.7f),
-                    height = ACC_KEY_HEIGHT.minus(1).dp, // minus one for top border
-                    width = ACC_KEY_WIDTH.dp
+                    height = keyHeight.minus(1.dp), // minus one for top border
+                    width = keyWidth
                 )
             }
         }
@@ -261,7 +295,14 @@ data class PianoKey(val note: Note, val octave: Int) : Comparable<PianoKey> {
         }
     }.compare(this, other)
 
-    override fun toString(): String = "$note$octave"
+    override fun toString(): String {
+        return if (ACC_NOTES.contains(note)) {
+            val shiftedNote = note.dec()
+            "$shiftedNote#$octave"
+        } else {
+            "$note$octave"
+        }
+    }
 }
 
 enum class Note(val index: Int) {
@@ -276,7 +317,12 @@ enum class Note(val index: Int) {
     Gs(8),
     A(9),
     As(10),
-    B(11)
+    B(11);
+
+    operator fun dec(): Note {
+        val index = max(values().indexOf(this) - 1, 0).toInt()
+        return values()[index]
+    }
 }
 
 inline val String.chord: List<PianoKey>
@@ -298,28 +344,10 @@ inline val String.chord: List<PianoKey>
         }
     }
 
-private const val DEFAULT_SCALE = 1.5f
-private const val KEY_WIDTH = 32 * DEFAULT_SCALE
-private const val KEY_AND_BORDER_WIDTH = KEY_WIDTH + 1
-private const val KEY_HEIGHT = 128 * DEFAULT_SCALE
-private const val ACC_KEY_WIDTH = 22 * DEFAULT_SCALE
-private const val ACC_KEY_HEIGHT = 86 * DEFAULT_SCALE
-private const val ACC_KEY_WIDTH_HALF = ACC_KEY_WIDTH / 2
-private const val ACC_KEY_OFFSET = ACC_KEY_WIDTH / 6
-private val ACC_NOTE_SPACING: List<Float> = listOf(
-    (KEY_AND_BORDER_WIDTH * 1) - ACC_KEY_WIDTH_HALF - ACC_KEY_OFFSET,
-    (KEY_AND_BORDER_WIDTH * 2) - ACC_KEY_WIDTH_HALF + ACC_KEY_OFFSET,
-    (KEY_AND_BORDER_WIDTH * 4) - ACC_KEY_WIDTH_HALF - ACC_KEY_OFFSET,
-    (KEY_AND_BORDER_WIDTH * 5) - ACC_KEY_WIDTH_HALF,
-    (KEY_AND_BORDER_WIDTH * 6) - ACC_KEY_WIDTH_HALF + ACC_KEY_OFFSET
-)
-private val ACC_NOTE_SPACING_FROM_F: List<Float> = listOf(
-    (KEY_AND_BORDER_WIDTH + 1) - ACC_KEY_WIDTH_HALF - ACC_KEY_OFFSET,
-    (KEY_AND_BORDER_WIDTH * 2) - ACC_KEY_WIDTH_HALF,
-    (KEY_AND_BORDER_WIDTH * 3) - ACC_KEY_WIDTH_HALF + ACC_KEY_OFFSET,
-    (KEY_AND_BORDER_WIDTH * 5) - ACC_KEY_WIDTH_HALF - ACC_KEY_OFFSET,
-    (KEY_AND_BORDER_WIDTH * 6) - ACC_KEY_WIDTH_HALF + ACC_KEY_OFFSET
-)
+private const val BASE_KEY_WIDTH = 32
+private const val BASE_KEY_HEIGHT = 128
+private const val BASE_ACC_KEY_WIDTH = 22
+private const val BASE_ACC_KEY_HEIGHT = 86
 
 private val NATURAL_NOTES = listOf(C, D, E, F, G, A, B)
 private val NATURAL_NOTES_FROM_F = listOf(F, G, A, B, C, D, E)

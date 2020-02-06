@@ -34,13 +34,7 @@ import kotlin.math.max
 @Composable
 @Preview
 fun PianoRollPreview() {
-    val chord = listOf(
-        PianoKey(F, 0),
-        PianoKey(A, 0),
-        PianoKey(B, 0)
-    )
-
-    PianoChord(chord = chord)
+    PianoChord("C0 E0 B0".chord)
 }
 
 @Composable
@@ -65,9 +59,13 @@ fun PianoRoll(
     onKeyPressed: (PianoKey) -> Unit = {}
 ) {
     val startsAtF = from.note >= F
+    val octaves = to.octave - from.octave
+    val range = (octaves * 12) + Note.values().indexOf(to.note) - (if(startsAtF) 5 else 0)
+    val toOctave = (range / 12f).toInt()
+
     Row {
         KeyDivider((BASE_KEY_HEIGHT * sizeScale).dp)
-        for (octave in from.octave..to.octave) {
+        for (octave in from.octave..toOctave) {
             PianoRollOctave(
                 startFromF = startsAtF,
                 showNoteNames = showNoteNames,

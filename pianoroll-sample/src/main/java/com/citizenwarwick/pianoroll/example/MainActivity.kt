@@ -7,12 +7,9 @@ import androidx.ui.core.Text
 import androidx.ui.core.setContent
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutHeight
-import androidx.ui.layout.Spacer
 import androidx.ui.material.MaterialTheme
-import androidx.ui.unit.dp
 import com.citizenwarwick.pianoroll.PianoChord
-import com.citizenwarwick.pianoroll.chord
+import com.citizenwarwick.music.chord
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

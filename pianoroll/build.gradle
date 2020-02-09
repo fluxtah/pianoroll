@@ -54,6 +54,7 @@ dependencies {
     implementation "androidx.ui:ui-layout:$compose_ui_version"
     implementation "androidx.ui:ui-material:$compose_ui_version"
     implementation "androidx.ui:ui-tooling:$compose_ui_version"
+    api "com.github.fluxtah:music:0.1.0"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

@@ -123,7 +123,7 @@ private fun WhiteNoteLabels(
     Row {
         repeat(7) { noteIndex ->
             Container(
-                LayoutPadding(right = 1.dp) + LayoutSize(
+                LayoutPadding(start = 1.dp) + LayoutSize(
                     (BASE_KEY_WIDTH * sizeScale).dp, (BASE_KEY_HEIGHT * sizeScale).minus(4).dp
                 ),
                 alignment = Alignment.BottomCenter
@@ -285,7 +285,7 @@ private fun KeyDivider(height: Dp) {
 
 @Composable
 private fun AccidentalPianoKey(leftSpacing: Dp, highlighted: Boolean = false, keyWidth: Dp, keyHeight: Dp) {
-    Column(modifier = LayoutPadding(left = leftSpacing)) {
+    Column(modifier = LayoutPadding(start = leftSpacing)) {
         ColoredRect(
             color = Color.Black,
             height = 1.dp,

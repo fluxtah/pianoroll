@@ -2,12 +2,12 @@ package com.citizenwarwick.pianoroll.example
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.state
-import androidx.ui.core.Text
-import androidx.ui.core.setContent
-import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.material.MaterialTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.ui.platform.setContent
 import com.citizenwarwick.pianoroll.PianoChord
 import com.citizenwarwick.music.chord
 
@@ -16,15 +16,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                Container {
-                    var selectedNote by state { "" }
+                Box {
+                    val selectedNote = savedInstanceState { "" }
                     Column {
                         Text(
-                            "You selected $selectedNote",
-                            style = MaterialTheme.typography().h4
+                            "You selected ${selectedNote.value}",
+                            style = MaterialTheme.typography.h4
                         )
                         PianoChord("F0 A0 C1".chord) {
-                            selectedNote = it.toString()
+                            selectedNote.value = it.toString()
                         }
                     }
                 }

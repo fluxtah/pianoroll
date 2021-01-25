@@ -15,23 +15,19 @@
  */
 package com.citizenwarwick.pianoroll
 
-import androidx.compose.Composable
-import androidx.ui.core.Alignment
-import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.ColoredRect
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.layout.LayoutPadding
-import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Row
-import androidx.ui.layout.Stack
-import androidx.ui.material.ripple.Ripple
-import androidx.ui.text.TextStyle
-import androidx.ui.tooling.preview.Preview
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.citizenwarwick.music.Note
 import com.citizenwarwick.music.PitchClass.A
 import com.citizenwarwick.music.PitchClass.As
@@ -53,7 +49,7 @@ import com.citizenwarwick.music.upper
 @Composable
 @Preview
 fun PianoRollPreview() {
-    PianoChord("C1 E1 G1".chord)
+    PianoChord(chord = "C1 E1 G1".chord, showNoteNames = true)
 }
 
 @Composable
@@ -105,7 +101,7 @@ fun PianoRollOctave(
     sizeScale: Float = 1.5f,
     onKeyPressed: (Note) -> Unit = {}
 ) {
-    Stack {
+    Box {
         WhiteNotes(startFromF, octave, highlightedKeys, sizeScale, onKeyPressed)
         BlackNotes(startFromF, octave, highlightedKeys, sizeScale, onKeyPressed)
         if (showNoteNames) {
@@ -122,14 +118,17 @@ private fun WhiteNoteLabels(
 ) {
     Row {
         repeat(7) { noteIndex ->
-            Container(
-                LayoutPadding(start = 1.dp) + LayoutSize(
-                    (BASE_KEY_WIDTH * sizeScale).dp, (BASE_KEY_HEIGHT * sizeScale).minus(4).dp
-                ),
-                alignment = Alignment.BottomCenter
+            Column(
+                Modifier
+                    .padding(start = 1.dp)
+                    .size(
+                        (BASE_KEY_WIDTH * sizeScale).dp, (BASE_KEY_HEIGHT * sizeScale).minus(4).dp
+                    ),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Bottom
             ) {
                 val noteName = formatNoteName(startFromF, noteIndex, octave)
-                androidx.ui.core.Text(
+                Text(
                     text = noteName,
                     style = TextStyle(fontSize = (8 * sizeScale).sp)
                 )
@@ -165,18 +164,14 @@ private fun BlackNotes(
             val highlighted =
                 highlightedKeys?.any { it.pitch == ACC_NOTES_FROM_F[index] && it.octave == actualOctave }
                     ?: false
-            Ripple(bounded = true, color = Color.White) {
-                Clickable(onClick = {
-                    onKeyPressed(
-                        Note(
-                            ACC_NOTES_FROM_F[index],
-                            actualOctave
-                        )
+            AccidentalPianoKey({
+                onKeyPressed(
+                    Note(
+                        ACC_NOTES_FROM_F[index],
+                        actualOctave
                     )
-                }) {
-                    AccidentalPianoKey(space.dp, highlighted, accKeyWidth.dp, accKeyHeight.dp)
-                }
-            }
+                )
+            }, space.dp, highlighted, accKeyWidth.dp, accKeyHeight.dp)
         }
     } else {
         val keySpacing: List<Float> = listOf(
@@ -191,18 +186,14 @@ private fun BlackNotes(
             val highlighted =
                 highlightedKeys?.any { it.pitch == ACC_NOTES[index] && it.octave == octave }
                     ?: false
-            Ripple(bounded = true, color = Color.White) {
-                Clickable(onClick = {
-                    onKeyPressed(
-                        Note(
-                            ACC_NOTES[index],
-                            octave
-                        )
+            AccidentalPianoKey({
+                onKeyPressed(
+                    Note(
+                        ACC_NOTES[index],
+                        octave
                     )
-                }) {
-                    AccidentalPianoKey(space.dp, highlighted, accKeyWidth.dp, accKeyHeight.dp)
-                }
-            }
+                )
+            }, space.dp, highlighted, accKeyWidth.dp, accKeyHeight.dp)
         }
     }
 }
@@ -224,28 +215,24 @@ private fun WhiteNotes(
             // to shift the octave number up when we hit the next C note
             NATURAL_NOTES_FROM_F.forEachIndexed { index, note ->
                 val actualOctave = if (index > 3) octave.plus(1) else octave
-                val highlighted = highlightedKeys?.any { it.pitch == note && it.octave == actualOctave } ?: false
-                Ripple(bounded = true) {
-                    Clickable(onClick = {
-                        onKeyPressed(
-                            Note(
-                                note,
-                                actualOctave
-                            )
-                        )
-                    }) {
-                        PianoKey(highlighted = highlighted, width = width, height = height)
-                    }
+                val highlighted =
+                    highlightedKeys?.any { it.pitch == note && it.octave == actualOctave }
+                        ?: false
+                Box(Modifier.clickable(onClick = {
+                    onKeyPressed(Note(note, actualOctave))
+                })) {
+                    PianoKey(highlighted = highlighted, width = width, height = height)
                 }
                 KeyDivider(height)
             }
         } else {
             NATURAL_NOTES.forEach { note ->
-                val highlighted = highlightedKeys?.any { it.pitch == note && it.octave == octave } ?: false
-                Ripple(bounded = true) {
-                    Clickable(onClick = { onKeyPressed(Note(note, octave)) }) {
-                        PianoKey(highlighted = highlighted, width = width, height = height)
-                    }
+                val highlighted = highlightedKeys?.any { it.pitch == note && it.octave == octave }
+                    ?: false
+                Box(Modifier.clickable(onClick = {
+                    onKeyPressed(Note(note, octave))
+                })) {
+                    PianoKey(highlighted = highlighted, width = width, height = height)
                 }
                 KeyDivider(height)
             }
@@ -256,55 +243,63 @@ private fun WhiteNotes(
 @Composable
 private fun PianoKey(highlighted: Boolean = false, width: Dp, height: Dp) {
     Column {
-        ColoredRect(
-            color = Color.Black,
-            height = 1.dp,
-            width = width
+        Box(
+            Modifier
+                .background(color = Color.Black)
+                .width(width)
+                .height(1.dp)
         )
-        ColoredRect(
-            color = if (highlighted) Color.Yellow else Color.White,
-            height = height.minus(2.dp), // 2 less for border top and bottom
-            width = width
+        Box(
+            Modifier
+                .background(color = if (highlighted) Color.Yellow else Color.White)
+                .width(width)
+                .height(height)
         )
-        ColoredRect(
-            color = Color.Black,
-            height = 1.dp,
-            width = width
+        Box(
+            Modifier
+                .background(color = Color.Black)
+                .width(width)
+                .height(1.dp)
         )
     }
 }
 
 @Composable
 private fun KeyDivider(height: Dp) {
-    ColoredRect(
-        color = Color.Black,
-        height = height,
-        width = 1.dp
+    Box(
+        Modifier
+            .background(Color.Black)
+            .height(height)
+            .width(1.dp)
     )
 }
 
 @Composable
-private fun AccidentalPianoKey(leftSpacing: Dp, highlighted: Boolean = false, keyWidth: Dp, keyHeight: Dp) {
-    Column(modifier = LayoutPadding(start = leftSpacing)) {
-        ColoredRect(
-            color = Color.Black,
-            height = 1.dp,
-            width = keyWidth
+private fun AccidentalPianoKey(
+    onClick: () -> Unit,
+    leftSpacing: Dp,
+    highlighted: Boolean = false,
+    keyWidth: Dp,
+    keyHeight: Dp
+) {
+    Column(
+        Modifier
+            .padding(start = leftSpacing)
+            .width(keyWidth)
+            .background(if (highlighted) Color.Yellow else Color.Black)
+            .clickable(onClick = onClick)
+    ) {
+        Box(
+            Modifier
+                .background(Color.Black)
+                .height(1.dp)
+                .width(keyWidth)
         )
-        Stack {
-            ColoredRect(
-                color = Color.Black,
-                height = keyHeight.minus(1.dp), // minus one for top border
-                width = keyWidth
-            )
-            if (highlighted) {
-                ColoredRect(
-                    color = Color.Yellow.copy(alpha = 0.7f),
-                    height = keyHeight.minus(1.dp), // minus one for top border
-                    width = keyWidth
-                )
-            }
-        }
+        Box(
+            Modifier
+                .height(keyHeight.minus(1.dp)) // minus one for top border
+                .width(keyWidth)
+        )
     }
 }
 

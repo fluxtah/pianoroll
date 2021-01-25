@@ -8,12 +8,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                Container {
+                Box {
                     Column {
                         PianoChord("C0 E0 G0".chord)
-                        Spacer(modifier = LayoutHeight(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         PianoChord("D0 F0 A0".chord)
-                        Spacer(modifier = LayoutHeight(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         PianoChord("E0 G#0 B0".chord)
                     }
                 }
@@ -40,7 +40,7 @@ allprojects {
 
 ```groovy
 dependencies {
-  implementation 'com.github.fluxtah:pianoroll:0.1.5'
+  implementation 'com.github.fluxtah:pianoroll:0.1.70'
 }
 ```
 

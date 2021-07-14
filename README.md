@@ -1,21 +1,28 @@
 [![](https://jitpack.io/v/fluxtah/pianoroll.svg)](https://jitpack.io/#fluxtah/pianoroll)
 
 # Piano Roll for Jetpack Compose
-<img align="right" src="https://github.com/fluxtah/pianoroll/blob/master/gfx/screenshots/piano-roll-1.png" alt="Piano Roll"  width="300" />Piano roll is a small library written in Jetpack Compose to create chord sheets for keyboards and pianos.
+![PianoRoll Example Screenshot](gfx/screenshots/piano-roll-1.png)
+Piano roll is a small library written in Jetpack Compose to create chord sheets for keyboards and pianos.
+
 ```kotlin
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                Box {
-                    Column {
-                        PianoChord("C0 E0 G0".chord)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        PianoChord("D0 F0 A0".chord)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        PianoChord("E0 G#0 B0".chord)
-                    }
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    PianoRoll(
+                        startNote = Note(PitchClass.C, 0),
+                        endNote = Note(PitchClass.C, 1),
+                        options = PianoRollOptions(
+                            highlightedNotes = "C0 E0 G0 B0".chord
+                        )
+                    )
                 }
             }
         }

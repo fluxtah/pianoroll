@@ -53,7 +53,7 @@ fun PianoRoll(
         Modifier
             .width((naturalNoteCount * (options.keyWidthScaled + options.keyMarginScaled)).dp)
             .height((options.keyHeightScaled + options.topBorderSizeScaled + options.bottomBorderSizeScaled).dp)
-            .background(Color.Black)
+            .background(options.borderColor)
     ) {
         var xPos = options.keyMarginScaled / 2
         notes.forEachIndexed { index, note ->
@@ -61,22 +61,25 @@ fun PianoRoll(
             val highlighted =
                 options.highlightedNotes.any { it.pitch == note.pitch && it.octave == note.octave }
             if (!isBlackNote && index > 0) xPos += (options.keyWidthScaled + options.keyMarginScaled).roundToInt()
+            var bias = 0f;
+            if(note.pitch == PitchClass.Cs || note.pitch == PitchClass.Fs) bias = -(options.blackKeyWidthScaled / 4)
+            if(note.pitch == PitchClass.Ds || note.pitch == PitchClass.As) bias = (options.blackKeyWidthScaled / 4)
             Box(
                 Modifier
                     .width(if (isBlackNote) options.blackKeyWidthScaled.dp else options.keyWidthScaled.dp)
                     .height(if (isBlackNote) options.blackKeyHeightScaled.dp else options.keyHeightScaled.dp)
                     .zIndex(if (isBlackNote) 2f else 1f)
                     .offset(
-                        x = (xPos + if (isBlackNote) (options.blackKeyWidthScaled).roundToInt() else 0).dp,
+                        x = (bias + xPos + if (isBlackNote) (options.blackKeyWidthScaled).roundToInt() else 0).dp,
                         y = options.topBorderSizeScaled.dp
                     )
-                    .background(computeKeyColor(isBlackNote, highlighted))
+                    .background(computeKeyColor(options, isBlackNote, highlighted))
                     .clickable { onKeyPressed(note) },
                 contentAlignment = Alignment.BottomCenter
             ) {
                 Text(
                     fontSize = options.fontSizeScaled.sp,
-                    color = if (isBlackNote) Color.White else Color.Black,
+                    color = if (isBlackNote) options.blackKeyTextColor else options.whiteKeyTextColor,
                     text = "${note.pitch.noteName}${note.octave}"
                 )
             }
@@ -85,10 +88,14 @@ fun PianoRoll(
 }
 
 @Composable
-private fun computeKeyColor(isBlackKey: Boolean, isHighlightedKey: Boolean): Color = when {
-    isHighlightedKey -> Color.Yellow
-    isBlackKey -> Color.Black
-    else -> Color.White
+private fun computeKeyColor(
+    options: PianoRollOptions,
+    isBlackKey: Boolean,
+    isHighlightedKey: Boolean
+): Color = when {
+    isHighlightedKey -> options.highlightKeyColor
+    isBlackKey -> options.blackKeyColor
+    else -> options.whiteKeyColor
 }
 
 private const val BASE_KEY_WIDTH = 64f
@@ -133,7 +140,13 @@ data class PianoRollOptions(
     val bottomBorderSize: Float = BASE_BOTTOM_BORDER,
     val fontSize: Float = BASE_FONT_SIZE,
     val showNoteNames: Boolean = true,
-    val highlightedNotes: Set<Note> = setOf()
+    val highlightedNotes: Set<Note> = setOf(),
+    val blackKeyColor: Color = Color.Black,
+    val whiteKeyColor: Color = Color.White,
+    val blackKeyTextColor: Color = Color.White,
+    val whiteKeyTextColor: Color = Color.Black,
+    val highlightKeyColor: Color = Color.Yellow,
+    val borderColor: Color = Color.Black
 ) {
     val keyWidthScaled = keyWidth * sizeScale
     val blackKeyWidthScaled = blackKeyWidth * sizeScale

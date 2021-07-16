@@ -5,14 +5,16 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.citizenwarwick.music.Note
@@ -26,11 +28,27 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                Box(
-                    modifier = Modifier
+                Content()
+            }
+        }
+    }
+
+    @Composable
+    @Preview
+    private fun Content() {
+        Box {
+            val selectedNote = rememberSaveable { mutableStateOf("") }
+            val scrollState = remember { ScrollState(0) }
+
+            Column {
+                Text(
+                    "You selected ${selectedNote.value}",
+                    style = MaterialTheme.typography.h4
+                )
+                Row(
+                    Modifier
+                        .horizontalScroll(scrollState)
                         .fillMaxWidth()
-                        .fillMaxHeight(),
-                    contentAlignment = Alignment.Center
                 ) {
                     PianoRoll(
                         startNote = Note(PitchClass.C, 0),
@@ -38,7 +56,9 @@ class MainActivity : AppCompatActivity() {
                         options = PianoRollOptions(
                             highlightedNotes = "C0 E0 G0 B0".chord
                         )
-                    )
+                    ) {
+                        selectedNote.value = it.toString()
+                    }
                 }
             }
         }

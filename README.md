@@ -47,7 +47,7 @@ allprojects {
 
 ```groovy
 dependencies {
-  implementation 'com.github.fluxtah:pianoroll:0.1.70'
+  implementation 'com.github.fluxtah:pianoroll:2.0.0'
 }
 ```
 

@@ -77,11 +77,13 @@ fun PianoRoll(
                     .clickable { onKeyPressed(note) },
                 contentAlignment = Alignment.BottomCenter
             ) {
-                Text(
-                    fontSize = options.fontSizeScaled.sp,
-                    color = if (isBlackNote) options.blackKeyTextColor else options.whiteKeyTextColor,
-                    text = "${note.pitch.noteName}${note.octave}"
-                )
+                if (options.showNoteNames) {
+                    Text(
+                        fontSize = options.fontSizeScaled.sp,
+                        color = if (isBlackNote) options.blackKeyTextColor else options.whiteKeyTextColor,
+                        text = "${note.pitch.noteName}${note.octave}"
+                    )
+                }
             }
         }
     }
